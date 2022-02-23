@@ -1,0 +1,21 @@
+Various technologies are needed for detecting devices on the network. In this chapter, four technologies are explained: MIB, SNMP, LLDP, and NETCONF.
+
+Management Information Base (MIB) describes a data structure and is used in different technologies like SNMP. The data is structured hierarchically in a tree. A saved object can be addressed via a sequence of numbers or an ASCII string sequence. It is using Formal Abstract Syntax Notation One (ASN.1) to describe the database and its entries.
+
+Simple Network Management Protocol (SNMP) is a network monitoring and management protocol, developed in 1988 by the
+Internet Engineering Task Force (IETF). Over the years, multiple versions of SNMP have been released, but only three
+of them are mainly used: v1, v2c, and v3. The communication between network devices is handled by agents. There is one master agent, called AgentX, which communicates with other master agents. SNMP supports multiple instructions for getting and setting data from the devices.
+
+Link Layer Discovery Protocol (LLDP) is an open and vendor-independent Layer 2 Protocol. Its purpose is
+to advertise the identity and capabilities to the connected network neighbors. Each device runs an agent, which collects the data sent by other devices. Because LLDP is a Layer 2 Protocol, it does not need an IP address to transmit its information.
+
+Network Configuration Protocol (NETCONF) is a network monitoring and management protocol, published in 2006 as a successor of SNMP. It exchanges data encoded with XML with remote procedure calls. The advantages over SNMP are a modern, secure , and session-based communication, detection of capabilities, and the modern data description language YANG.
+
+
+\input{chapters/stateoftheart.mib.tex}
+
+\input{chapters/stateoftheart.snmp.tex}
+
+\input{chapters/stateoftheart.lldp.tex}
+
+\input{chapters/stateoftheart.netconf.tex}

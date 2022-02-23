@@ -1,0 +1,17 @@
+\section{Requirements}
+\label{Section:Evaluation-Requirements}
+
+The application has some requirements to deliver the correct network topology. Every device on the network must fulfill these requirements:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item Run an SNMP daemon.
+    \item Support SNMPv1 and SNMPv2c.
+    \item Run an LLDP daemon.
+    \item LLDP data must be collectible with SNMP.
+    \item Each interface port needs to have a unique MAC address.
+    \item LLDPd must send the port MAC address as \textit{ChassisID}.
+    \item The remote port data must be connected to a local port in the MIB data.
+    \item Every network node, that isn't an end node, must send an SNMPv1 trap to the application if the status of an interface changes.
+\end{itemize}
+\end{minipage}

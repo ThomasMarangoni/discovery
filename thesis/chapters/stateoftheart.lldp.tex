@@ -1,0 +1,222 @@
+\section{LLDP - Link Layer Discovery Protocol}
+\label{Section:LLDP}
+LLDP (Link Layer Discovery Protocol) is an open and vendor-independent Layer 2 (Data Link Layer) Protocol, which is defined in IEEE Std 802.1AB \cite{IEEE:LLDP:2016}. Its purpose is to advertise the identity and capabilities to the connected network neighbors. Each device needs to run an LLDP Agent, which collects the information of the neighbors and publishes its information periodically.
+
+LLDP data are transferred via Ethernet frames, with a specific multicast destination addresses and a specific EtherType. These frames with the specific multicast destination addresses are not forwarded by switches and routers, but other addresses are permitted.
+
+LLDP is a one-way protocol, the agent can receive and transmit information, but does not directly communicate with other agents. Because of that, LLDP allows to separately enable the receive or transmit functionality. The LLDP agent itself does not provide any functionality to process information. Received information is stored in multiple MIB tables and can be read per SNMP (see Section \ref{Section:SNMP}) or other provided interfaces \cite{IEEE:LLDP:2016}. 
+
+\subsection{Communication}
+\label{Section:LLDP-Communication}
+
+For communication, Ethernet frames are used. They contain the destination address, the source address, the EtherType, and the LLDP Data Unit (see Table \ref{Table:LLDP-EthernetFrame}). The destination address is a multicast MAC address. It can be a specified and reserved MAC address by IEEE Std 802.1AB \cite{IEEE:LLDP:2016}, but other MAC addresses are also permitted. The Ethernet frame must contain the EtherType "0x88CC". If the Agent supports EtherType encoding, it shall be encoded in the LLDP Data Unit header. The source address must be the MAC Address of the sender or the sender port.
+
+\begin{table}[ht]
+    \begin{tabularx}{\linewidth}{|L{9em}|X|L{5em}|L{5em}|}
+        \hline
+        \rowcolor{lightgray!60} Destination Address & Source Address & EtherType & LLDPDU \\ 
+        \hline
+        Multicast Address & MAC Address of LLDP Device & 0x88CC & See \ref{Section:LLDP-LLDPDU} \\ 
+        \hline
+    \end{tabularx}
+    \caption{Simplified structure of a Ethernet Frame for LLDP}
+    \label{Table:LLDP-EthernetFrame}
+\end{table}
+
+\subsubsection{Supported Destinations Addresses}
+\label{Section:LLDP-SupportedDestinationsAddresses}
+
+IEEE Std 802.1AB (\cite{IEEE:LLDP:2016}) contains predefined MAC address groups, that allow filtering the proposal of the Ethernet frames by different network components. These network components are Two-Port MAC Relay (also known as cross-connect Ethernet devices), Service Virtual Local Area Network (S-VLAN), Customer Virtual Local Area Network (C-VLAN), and MAC Bridges (Network Switch).
+
+\paragraph{Nearest bridge group (01:80:C2:00:00:0E):} Packages with this destination address are not propagated by Two-Port MAC Relay (TPMR) components, S-VLAN components, C-VLAN components, and MAC Bridges. This means, packages only contain information about devices attached to the same LAN segment as the recipient.
+
+\paragraph{Nearest non-TPMR bridge (01:80:C2:00:00:03):} Frames using this group as destination are not propagated by S-VLAN components, C-VLAN components, and MAC Bridges. But they are propagated by Two-Port MAC Relay (TPMR) components.
+
+\paragraph{Nearest custom bridge (01:80:C2:00:00:00):} LLDPDU sent with this destination address group are not propagated by C-VLAN components and MAC Bridges. But they are propagated by S-VLAN components and Two-Port MAC Relay (TPMR) components.
+
+\paragraph{Custom groups and custom addresses:} Custom groups or individual addresses could be used, but it can happen that the custom address or group is not implemented on the recipient.
+
+Table \ref{Table:LLDP-SupportedMAC} shows the needed implementation for each destination address group and network device category \cite{IEEE:LLDP:2016}.
+
+\begin{table}[ht]
+    \begin{tabularx}{\linewidth}{|L{9em}|X|X|X|X|}
+        \hline
+        \rowcolor{lightgray!60} Address & C-VLAN Bridge & S-VLAN Bridge & TPMR Bridge & End Station \\ 
+        \hline 
+        Nearest bridge & Mandatory & Mandatory & Mandatory & Mandatory \\ 
+        \hline
+        Nearest non-TPMR bridge & Mandatory & Mandatory & Not Permitted & Recommended \\ 
+        \hline
+        Nearest customer bridge & Mandatory & Not Permitted & Not Permitted & Recommended \\ 
+        \hline
+        Any other group MAC address & Permitted & Permitted & Permitted & Permitted \\ 
+        \hline 
+        Any individual MAC address & Permitted & Permitted & Permitted & Permitted \\ 
+        \hline 
+    \end{tabularx}
+    \caption{Support for MAC addresses (Adaption based on \cite{IEEE:LLDP:2016})}
+    \label{Table:LLDP-SupportedMAC}
+\end{table}
+
+\subsection{LLDP Data Unit (LLDPDU)}
+\label{Section:LLDP-LLDPDU}
+The LLDP Data Unit contains a sequence of TLVs (see Section \ref{Section:LLDP-TLV}). These contain the information sent by the Agents. The Data Unit frame contains three mandatory TLVs and can contain multiple optional ones.
+
+\begin{table}[ht]
+    \begin{tabularx}{\linewidth}{|L{10em}|X|L{6em}|}
+    \hline
+    \rowcolor{lightgray!60}\textbf{Name}     & \textbf{Description}                                             & \textbf{Requirement} \\
+    \hline
+    Chassis ID TLV    & An unique identifier from the device sending this package        & Mandatory \\
+    \hline
+    Port ID TLV       & An identifier for the port the receiving device is connected to. & Mandatory \\
+    \hline
+    Time to Live TLV  & The time in seconds how long the data can be identified as valid & Mandatory \\
+    \hline
+    Optional TLV      & See \ref{Section:LLDP-TLV}                                       & Optional  \\
+    \hline
+    ...               & ...                                                              & ...       \\
+    \hline
+    Optional TLV      & See \ref{Section:LLDP-TLV}                                      & Optional  \\
+    \hline
+    End of LLDPDU TLV & Marks the end of a TLV sequence.                                 & Optional \\
+    \hline
+    \end{tabularx}
+    \caption{Structure of a LLDPDU Frame (Adaption based on \cite{IEEE:LLDP:2016})}
+    \label{Table:LLDP-LLDPDUFrame}
+\end{table}
+
+Every LLDPU needs to contain a number of octets. The octets are starting with 1 and the bits in the octets are numbered from 1 to 8, where 1 is the low-order bit. When bits in an octet are represented as a binary number, the highest bit is the most significant bit. If octets are used to represent a binary number, the lowest octet contains the most significant number. When the LLDPU or parts of it are represented using a diagram, the lowest octet is shown most left of the page and within an octet the highest numbered bit is shown most left \cite{IEEE:LLDP:2016}.
+
+\subsection{Type, Length, Value (TLV)}
+\label{Section:LLDP-TLV}
+The TLV format represents information and contains its type and length. The first TLV section (see Table \ref{Table:LLDP-TLVStructure}) contains the type of the information and is 7 bits long. The next section includes the length of the information string, it is 9 bits long and represents the total length of the information string in octets. The last section of the TLV contains the information string, which can be 0 to 511 Octets long. The information string can contain binary or alphanumeric data. For encoding alpha-numeric data ,UTF-8 \cite{RFC:RFC3629:2003} shall be used.
+
+\begin{table}[h]
+    \begin{tabularx}{\linewidth}{|L{7em}|X|X|}
+        \hline
+        \rowcolor{lightgray!60} TLV type & TLV information string length & TLV information string \\ 
+        \hline
+        7 bits & 9 bits & $0 \leq n \leq 511$ Octets  \\ 
+        \hline
+    \end{tabularx}
+    \caption{Structure of a TLV (Adaption based on \cite{IEEE:LLDP:2016})}
+    \label{Table:LLDP-TLVStructure}
+\end{table}
+
+TLV types can be grouped into two categories. The first category contains basic information for network management and is required by every LLDP implementation. Each TLV of this category has its type specified. The second category is organizationally specified. Each TLV of this category has the same type, but includes an organizationally unique identifier (OUI) and an organizationally-specific TLV subtype. This category is specified by standard groups like IEEE 802.1 and IEEE 802.3. The different LLDP TLV Types as defined in \cite{IEEE:LLDP:2016} are briefly summarized in the following.
+
+\begin{table}[h]
+    \begin{center}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \rowcolor{lightgray!60} type & name & usage & reference \\ 
+        \hline
+        0 & End Of LDDPDU & Optional & \ref{Section:LLDP-EndOfLLDPDU} \\ 
+        \hline
+        1 & Chassis ID & Mandatory & \ref{Section:LLDP-ChassisID} \\ 
+        \hline
+        2 & Port ID & Mandatory & \ref{Section:LLDP-PortID} \\ 
+        \hline
+        3 & Time to Live & Mandatory & \ref{Section:LLDP-TimeToLive} \\ 
+        \hline
+        4 & Port Description & Optional & \ref{Section:LLDP-PortDescription} \\ 
+        \hline
+        5 & System Name & Optional & \ref{Section:LLDP-SystemName} \\ 
+        \hline
+        6 & System Description & Optional & \ref{Section:LLDP-SystemDescription} \\ 
+        \hline
+        7 & System Capabilities & Optional & \ref{Section:LLDP-SystemCapabilities} \\ 
+        \hline
+        8 & Management Address & Optional & \ref{Section:LLDP-ManagementAddress} \\ 
+        \hline
+        9-126 & Reserved & --- & --- \\ 
+        \hline
+        127 & Organizationally Specific & Optional & \ref{Section:LLDP-OrganizationallySpecific} \\ 
+        \hline
+    \end{tabular}
+    \caption{The value of all TLV types (Adaption based on \cite{IEEE:LLDP:2016})}
+    \label{Table:LLDP-TLVTypes}
+    \end{center}
+\end{table}
+
+\subsubsection{End Of LLDPDU TLV}
+\label{Section:LLDP-EndOfLLDPDU}
+\textit{This TLV type is optional and uses type value 0.} It is 2-octets long and contains only zeros, and it is used to mark the end of a TLV sequence in an LLDPDU frame.
+
+\subsubsection{Chassis ID TLV}
+\label{Section:LLDP-ChassisID}
+\textit{This TLV type is mandatory and uses type value 1.} It is up to 258 octets long and contains an identifier that can be associated with the transmitting agent. It contains an 8-bit subtype at the beginning of the information string because there are several ways to identify an agent. The subtype can classify a chassis component, interface alias, port component, MAC address, network address, interface name, or a locally assigned string. Each LLDPDU shall only contain one Chassis ID TLV and it shall be the first TLV in an LLDPDU frame.
+
+\subsubsection{Port ID TLV}
+\label{Section:LLDP-PortID}
+\textit{This TLV type is mandatory and uses type value 2.} It is up to 258 octets long and contains an identifier, which can be associated with the port of the transmitting agent. It contains an 8-bit subtype at the beginning of the information string because there are several ways to identify the port of an agent, like the Chassis ID. The subtype can classify an interface alias, port component, MAC address, network address, interface name, agent circuit ID, or a locally assigned string. Each LLDPDU shall only contain one Port ID TLV and it shall be the second TLV in an LLDPDU frame. The port ID shall be constant while the port remains operational.
+
+\subsubsection{Time To Live TLV}
+\label{Section:LLDP-TimeToLive}
+\textit{This TLV type is mandatory and uses type value 3.} It is 4 octets long and represents the number of seconds that the receiving agent can assume the attached information as valid. If the time to live contains a non-zero value, the receiving agent is notified to replace old saved information with the attached information. If the time to live is set to zero, the receiving agent is notified to delete all information associated with this agent. This may be used to indicate a shutdown of the sending port. Each LLDPDU shall only contain one Time to Live TLV and it shall be the third TLV in an LLDPDU frame.
+
+\subsubsection{Port Description TLV}
+\label{Section:LLDP-PortDescription}
+\textit{This TLV type is optional and uses type value 4.} It is up to 257 octets long and contains an alpha-numeric string that describes the sending port. If \textit{ifDesc} object \cite{RFC:RFC2863:2000} is implemented, it should be used for this field. Each LLDPDU shall only contain one Port Description TLV.
+
+\subsubsection{System Name TLV}
+\label{Section:LLDP-SystemName}
+\textit{This TLV type is optional and uses type value 5.} It is up to 257 octets long and contains an alpha-numeric string of the system name from the sender. If \textit{sysName} object \cite{RFC:RFC3418:2002} is implemented, it should be used for this field. Each LLDPDU shall only contain one System Name TLV.
+
+\subsubsection{System Description TLV}
+\label{Section:LLDP-SystemDescription}
+\textit{This TLV type is optional and uses type value 6.} It is up to 257 octets long and contains an alpha-numeric string of a textual description from the sender. If sysDescr object \cite{RFC:RFC3418:2002} is implemented, it should be used for this field. Each LLDPDU shall only contain one System Description TLV.
+
+
+\subsubsection{System Capabilities TLV}
+\label{Section:LLDP-SystemCapabilities}
+\textit{This TLV type is optional and uses type value 7.} It is 6 octets long and contains bit mask of functions the system is capable and functions the system has enabled. A system can have multiple capabilities and multiple can also be enabled. The bitmask fields are two octets long and can represent following capabilities:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item repeater
+    \item MAC Bridge component
+    \item 802.11 Access Point
+    \item router
+    \item telephone
+    \item DOCSIS cable device
+    \item station only
+    \item C-VLAN component
+    \item S-VLAN component
+    \item Two-port MAC Relay
+    \item other
+\end{itemize}
+\end{minipage}
+
+Each LLDPDU shall only contain one System Description TLV.
+
+\subsubsection{Management Address TLV}
+\label{Section:LLDP-ManagementAddress}
+\textit{This TLV type is optional and uses type value 8.} It is up to 169 octets long and contains the management address of a device to reach higher layer protocols. This TLV type also provides space to include the system interface number and an object identifier (OID), if they are known \cite{IEEE:LLDP:2016}. In Table \ref{Table:LLDP-ManagementAddressTLVStructure} the structure of the information string can be seen.
+
+\begin{table}[h]
+    \begin{tabularx}{\linewidth}{|X|X|X|C{4em}|C{4em}|C{3em}|C{3em}|}
+        \hline
+        \rowcolor{lightgray!60} management address string length & management address subtype & management address & interface number subtype & interface number & OID string length & OID \\ 
+        \hline
+        1 octet & 1 octet & 1-31 octets & 1 octet & 4 octets & 1 octet & 0-128 octets \\ 
+        \hline
+    \end{tabularx}
+    \caption{Structure of the information string from a Management Address TLV (Adaption based on \cite{IEEE:LLDP:2016})}
+    \label{Table:LLDP-ManagementAddressTLVStructure}
+\end{table}
+
+The management address subtype contains the type of an address represented in the management address field. It can be one of the types defined in ianaAddressFamilyNumber module \cite{RFC:RFC3232:2002}.
+
+The management address should contain a Layer 3 address. If no management address is available, the field should contain the MAC address of the sender or the MAC address of it is port.
+
+The interface number subtype describes the value of the interface number field. The following values are defined: Unknown, ifIndex, system port number. If the type is Unknown, the interface number field must only contain zeroes.
+
+The object identifier (OID) field contains an identifier of the type of the hardware component or the protocol entity associated with the indicated management address. The OID shall be ASN.1 \cite{ISO:ISO8824-1:2015} encoded. If no OID is provided, this field shall be skipped.
+
+At least one Management Address TLV should be included in every LLDPDU, the address provided should be the address with the best management capabilities. If more than one Management Address TLV is provided, each address shall be different.
+
+\subsubsection{Organizationally Specific TLVs}
+\label{Section:LLDP-OrganizationallySpecific}
+\textit{This TLV type is optional and uses type value 127.} This TLV type was created to extend the information that can be advertised by an agent. This type can be specified by a standardizing organization, but also by individual software and equipment vendors. The information string contains a three octets long organizational unique identifier (Clause 8 of IEEEStd 802-2014), one-octet long unique organizationally defined subtype, and an up to 507 octets long organizationally defined information string.

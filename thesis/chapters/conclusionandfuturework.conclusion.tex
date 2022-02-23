@@ -1,0 +1,13 @@
+\section{Conclusion}
+\label{Section:CAF-Conclusion}
+
+In theory, it is possible to implement network discovery on the basis of LLDP and SNMP but in practice, there have been a lot of pitfalls, which ultimately prohibited a full test of the application with existing equipment. A detailed explanation of the issues can be found in Section \ref{Section:CAF-Issues}.
+
+\newpage
+Most problems occurred, with the provided data by the manufacturer. This includes missing data, wrong data format, and more. Another problem has been the usage of SNMP because it was very complicated to map the data between the data type register and the data register. Under the devices that have been used for testing the application, no network device could be found that fulfills all requirements defined in Section \ref{Section:Evaluation-Requirements}.
+
+The current state of the implementation is that the data is queried from the devices and it can also receive traps. But because of the occurred issues, the data from the single network devices can't be connected. This means that the data of the devices has been written to the database, but the connection table stays empty.
+
+There also has no way been found, to get the length of the connection and the connection type. There are technical ways to implement such features, but this must be supported by the device manufacturers. If device manufacturers would support a discovery mechanism like described in this thesis, it could be an advantage to create a MIB table for this usage. In this MIB table, all the needed data could be described, which would also speed up the data gathering process.
+
+Most needed data could be gathered with SNMP, but some essential data to connect the found information couldn't be gathered. SNMP provided a lot of pitfalls while implementing the application. From that experience, a future implementation should use NETCONF instead of SNMP. A detailed explanation of possible improvements can be found in Section \ref{Section:CAF-Improvements}.

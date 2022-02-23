@@ -1,0 +1,16 @@
+To visualize the scenario when a network device is added or removed, Figure \ref{Figure:NetworkBase} shows an example network. A similar network has been used in the evaluation process of the application. This network contains only one switch with IPv4 address 10.0.0.2, as well as four additional devices. While the device with IPv4 address 10.0.0.1 holds the application, the other devices do not have a task related to the network discovery. Every device on this network has an SNMP daemon running and only the switch and the application device have configured traps. These traps will notify the application if a connection changes.
+
+The scenario of removing a device from the network can be seen in Figure \ref{Figure:NetworkDeviceRemove}. Here, the connection between the switch and the device with IPv4 10.0.0.4 got removed. Because of that, the switch will send a trap to the application. The application parses the received trap and initializes an SNMP scan of the switch. The received scan indicates that the device with IPv4 10.0.0.4 got removed and it will be removed from the internal database.
+
+In Figure \ref{Figure:NetworkDeviceAdded} the event of adding a device can be seen. For this case, a new device with IPv4 10.0.0.6 got added to the figure and a connection between it and the switch got added. The switch detects the connection and sends a trap to the application. The application initializes an SNMP scan of the switch. After parsing the result of the scan, the application detects that a new device got added to the network. It will now make an SNMP scan of the device with the IPv4 10.0.0.6 and add it and the new information of the switch to the database.
+
+\input{chapters/tikz_figures/network_base.tex}
+
+\input{chapters/tikz_figures/network_deviceremoved.tex}
+
+\input{chapters/tikz_figures/network_deviceadded.tex}
+
+\newpage
+\input{chapters/evaluation.devicesetup.tex}
+
+\input{chapters/evaluation.requirements.tex}

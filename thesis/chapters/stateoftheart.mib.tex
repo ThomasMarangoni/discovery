@@ -1,0 +1,212 @@
+\section{MIB - Management Information Base}
+\label{Section:MIB}
+
+The Management Information Base (MIB) is used to describe network entities. It was created to monitor, manage, and control network entities over a remote management protocol. It was first defined in RFC 1155\cite{RFC:RFC1155:1990}, RFC 1156\cite{RFC:RFC1156:1990} and RFC 1157\cite{RFC:RFC1157:1990} by IEFT. Its main purpose was to provide a standardized Data Modeling Language for SNMP (Section \ref{Section:SNMP}), but it can also be used for other remote management protocols. The current valid standards for MIB are RFC 1155\cite{RFC:RFC1155:1990} and RFC 1235 \cite{RFC:RFC1213:1991}.
+
+The MIB represents a hierarchical database, that is a tree. The root node of the tree is a MIB called MIB-I \cite{RFC:RFC1155:1990}, which can be extended by submodules defined in other MIBs. Elements in the tree are called \textit{managed objects} and have a unique id on their level, which is called Object Identifier (OID). With the OID it is possible to address one specific object in the tree, by describing the path from the root object to the object itself. The OID can be expressed as a sequence of numbers (.1.3.6.1.4.1) or as an ASCII string sequence (.iso.org.dod.internet.private.enterprise), however, they can also be mixed (.iso.org.dod.1.4.1). A simplified graphical representation of such a MIB tree structure can be found in Figure \ref{Figure:MIB-MIBTree}.
+
+MIBs are using Formal Abstract Syntax Notation One (ASN.1)\cite{ISO:ISO8824-1:2015} as a formal description language and are normally saved in text files with the file extension .mib. Other MIBs can be imported into one MIB and their definitions and types can be reused. MIBs are normally defined and maintained by IEFT and IEEE, but also by hardware and software vendors. There are multiple sources to acquire the MIBs, they can be found in RFC documents, on websites from vendors, as well as on general websites like \url{http://mibdepot.com}.
+
+
+\begin{figure}[!ht]
+\centering
+\begin{tikzpicture}
+    \tikzstyle{object}      = [shape=rectangle, draw, align=center]
+    \tikzstyle{relation}    = [draw,-]
+    \tikzstyle{relation_red}= [draw,thick,red,-]
+
+    \node (OID) {};
+
+    \node [object, below=of OID]    (OID1) {ISO\\1};
+    \node [object, left=of OID1]    (OID0) {CITT\\0};
+    \node [object, right=of OID1]   (OID2) {ISO - CCIT\\2};
+    \node [object, right=of OID2]   (OID3) {...\\3};
+
+    \node [object, below=of OID1]   (OID1_2) {member body\\2};
+    \node [object, left=of OID1_2]  (OID1_1) {..\\1};
+    \node [object, right=of OID1_2] (OID1_3) {org\\3};
+    \node [object, right=of OID1_3] (OID1_4) {...\\4};
+
+    \node [object, below=of OID1_3]     (OID1_3_6) {DoD\\6};
+    \node [object, left=of OID1_3_6]    (OID1_3_5) {...\\5};
+    \node [object, right=of OID1_3_6]   (OID1_3_7) {...\\7};
+
+    \node [object, below=of OID1_3_6]   (OID1_3_6_1) {Internet\\1};
+    \node [object, left=of OID1_3_6_1]  (OID1_3_6_0) {...\\0};
+    \node [object, right=of OID1_3_6_1] (OID1_3_6_2) {...\\2};
+
+    \node [object, below=of OID1_3_6_1]     (OID1_3_6_1_4)    {private\\4};
+    \node [object, left=of OID1_3_6_1_4]    (OID1_3_6_1_3)    {experimental\\3};
+    \node [object, left=of OID1_3_6_1_3]    (OID1_3_6_1_2)    {management\\2};
+    \node [object, left=of OID1_3_6_1_2]    (OID1_3_6_1_1)    {...\\1};
+    \node [object, right=of OID1_3_6_1_4]   (OID1_3_6_1_5)    {...\\5};
+
+    \node [object, below=of OID1_3_6_1_4]   (OID1_3_6_1_4_1) {enterprises\\1};
+    \node [object, left=of OID1_3_6_1_4_1]  (OID1_3_6_1_4_0) {...\\0};
+    \node [object, right=of OID1_3_6_1_4_1] (OID1_3_6_1_4_2) {...\\2};
+
+    \node [object, below=of OID1_3_6_1_2]   (OID1_3_6_1_2_1) {MIB-2\\1};
+    \node [object, left=of OID1_3_6_1_2_1]  (OID1_3_6_1_2_0) {...\\0};
+    \node [object, right=of OID1_3_6_1_2_1] (OID1_3_6_1_2_2) {..\\2};
+
+
+    \path [relation]    (OID.south) -- (OID0.north);
+    \path [relation_red](OID.south) -- (OID1.north);
+    \path [relation]    (OID.south) -- (OID2.north);
+    \path [relation]    (OID.south) -- (OID3.north);
+
+    \path [relation]    (OID1.south) -- (OID1_1.north);
+    \path [relation]    (OID1.south) -- (OID1_2.north);
+    \path [relation_red](OID1.south) -- (OID1_3.north);
+    \path [relation]    (OID1.south) -- (OID1_4.north);
+
+    \path [relation]    (OID1_3.south) -- (OID1_3_5.north);
+    \path [relation_red](OID1_3.south) -- (OID1_3_6.north);
+    \path [relation]    (OID1_3.south) -- (OID1_3_7.north);
+
+    \path [relation]    (OID1_3_6.south) -- (OID1_3_6_0.north);
+    \path [relation_red](OID1_3_6.south) -- (OID1_3_6_1.north);
+    \path [relation]    (OID1_3_6.south) -- (OID1_3_6_2.north);
+
+    \path [relation]    (OID1_3_6_1.south) -- (OID1_3_6_1_1.north);
+    \path [relation]    (OID1_3_6_1.south) -- (OID1_3_6_1_2.north);
+    \path [relation]    (OID1_3_6_1.south) -- (OID1_3_6_1_3.north);
+    \path [relation_red](OID1_3_6_1.south) -- (OID1_3_6_1_4.north);
+    \path [relation]    (OID1_3_6_1.south) -- (OID1_3_6_1_5.north);
+
+    \path [relation]    (OID1_3_6_1_2.south) -- (OID1_3_6_1_2_0.north);
+    \path [relation]    (OID1_3_6_1_2.south) -- (OID1_3_6_1_2_1.north);
+    \path [relation]    (OID1_3_6_1_2.south) -- (OID1_3_6_1_2_2.north);
+
+    \path [relation]    (OID1_3_6_1_4.south) -- (OID1_3_6_1_4_0.north);
+    \path [relation_red](OID1_3_6_1_4.south) -- (OID1_3_6_1_4_1.north);
+    \path [relation]    (OID1_3_6_1_4.south) -- (OID1_3_6_1_4_2.north);
+
+\end{tikzpicture}
+\caption{Shows a simplified MIB-Tree, where red marks the path for .1.3.6.1.4.1 or .iso.org.dod.internet.private.enterprise (Adaption based on \cite{Mueller:MIBTree:2006})}
+\label{Figure:MIB-MIBTree}
+\end{figure}
+
+\subsection{Names}
+\label{Section:MIB-Names}
+
+A \textit{name} is used to uniquely identify an object, regardless of the semantic association (standard document, network device, etc.), this concept is called Object Identifier (OID). An OID is a sequence of integers traversing a global tree. The root of the tree is connected to a number of labeled nodes via edges. Each node may have labeled children, also called a subtree. This concept may be repeated arbitrarily. A label is defined as a pairing of a brief textual description and an integer number. The root node itself is unlabeled and has at least three children (see Figure \ref{Figure:MIB-MIBTree}). These children are defined in \cite{RFC:RFC1155:1990} and may be extended by other standards. The three main nodes are:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item ccitt(0) by the International Telegraph and Telephone Consultative Committee
+    \item iso(1) by the International Organization of Standardization
+    \item joint-iso-ccitt(2) by ISO and CCITT
+\end{itemize}
+\end{minipage}
+
+
+The iso(1) node has a designated child node with the name org(3), that can be used by other international organizations. These organizations have their own subtrees below their child task. Two subtrees got assigned to the U.S National Institutes of Standard and Technology and one of them has been transferred to the U.S. Department of Defense, dod(6). The Department of Defense has allocated a node to the \textit{internet} community, to be managed by the Internet Activities Board (IAB). The definition of the \textit{internet} can be seen in Listing \ref{Listing:MIB-InternetNode}. The \textit{internet} object can be identified as 1.3.6.1 or as .iso.org.dod.internet. The IAB also defined four subnodes of internet(1), this can be seen in Listing \ref{Listing:MIB-InternetSubNodes}.
+
+\begin{lstlisting}[label=Listing:MIB-InternetNode,captionpos=b,caption={Definition of a node, internet node used as an example (from \cite{RFC:RFC1155:1990})}]
+    internet   OBJECT IDENTIFIER ::= { iso org(3) dod(6) 1 }
+\end{lstlisting}
+
+\begin{lstlisting}[label=Listing:MIB-InternetSubNodes,captionpos=b,caption={Definition of subnodes, internet subnodes used as an example (from \cite{RFC:RFC1155:1990})}]
+    directory     OBJECT IDENTIFIER ::= { internet 1 }
+    mgmt          OBJECT IDENTIFIER ::= { internet 2 }
+    experimental  OBJECT IDENTIFIER ::= { internet 3 }
+    private       OBJECT IDENTIFIER ::= { internet 4 }
+\end{lstlisting}
+
+
+The directory(1) subtree has not been defined in \cite{RFC:RFC1155:1990}, but it discusses how OSI Directory may be used on the Internet. OSI Directory is also known as X.500 and is a system to lookup named objects. 
+
+The mgmt(2) subtree is used for IAB-approved documents. The subnode mgmt(1) is used for newer approved versions of the Internet standard Management Information Base, defined by RFC.
+
+The experimental(3) subtree is used for Internet experiments and is managed by the Internet Assigned Numbers Authority of
+the Internet. They may define requirements on how this tree has to be used.
+
+The private(4) subtree is used to define unilateral objects. It is managed by the Internet Assigned Numbers Authority(IANA) of the Internet. It has an enterprise(1) subtree, which can be used by companies to define their subtrees. To add a subtree in this subtree, an enterprise identification number needs to be registered.
+
+\subsection{Syntax}
+\label{Section:MIB-Syntax}
+
+The structure of objects is described using the ASN.1 syntax, but the full generality of ASN.1 is not permitted. For primitives, only the following ASN.1 primitives are allowed: integer, octet string, the object identifier, and null. If an enumerated integer is used, there shall be no element with value 0.
+
+Multiple non-primitive types can be used. The ASN.1 constructor sequence can be used to generate lists and tables. New types can be defined, but remain ASN.1 primitive types, lists, tables and, other application types. Other application types are:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item \textbf{NetworkAddress:} This choice type represents an address from one of several internet protocol families.
+    \item \textbf{IpAddress:} This type represents an internet address, represented as an octet string in network-byte order.
+    \item \textbf{Counter:} This represents a non-negative integer value that can be increased. It wraps around if the maximum value is reached and starts incrementing from zero again.
+    \item \textbf{Gauge:} This represents a non-negative integer value that can be increased and decreased, but latches at the minimum and maximum value.
+    \item \textbf{TimeTicks:} This represents a non-negative integer value, that is getting incremented every hundredth of a second since an epoch. The epoch needs to be defined and explained in the description of this type.
+    \item \textbf{Opaque:} This represents data with special encoding. Details can be found in RFC 1155 (\cite{RFC:RFC1155:1990}).
+\end{itemize}
+\end{minipage}
+
+
+\subsection{Objects}
+\label{Section:MIB-Managed_Objects}
+
+Objects must be defined in a MIB. A MIB can contain a collection of object definitions. An object may refer to another object defined in the same or another MIB. The MIB defines the following items for each object:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item \textbf{Name:} Consists of a textual name and Sub-OID, and is also known as an object descriptor. It's not allowed to use 0 as a Sub-OID.
+    \item \textbf{Syntax:} Defines the type of the object (see Section \ref{Section:MIB-Syntax}).
+    \item \textbf{Definition:} Describes the usage of the object.
+    \item \textbf{Access:} Defines the access rights of the object. Access permissions can be one of: "read-only", "read-write", "write-only", "not-accessible".
+    \item \textbf{Status:} The object can be classified as "mandatory", "optional" or "obsolete".
+\end{itemize}
+\end{minipage}
+
+
+A management protocol that is using MIBs must provide a way to access a simple non-aggregate object. The management protocol needs to define if an aggregate object can be accessed. If an object refers to multiple instances, it also needs to specify which instance of an object has been returned. An example of an object definition can be seen in Listing \ref{Listing:MIB-Object}.
+
+\begin{lstlisting}[label=Listing:MIB-Object,captionpos=b,caption={Example of an object definition (taken from \cite{RFC:RFC1155:1990})}]
+    OBJECT:
+    -------
+        atIndex { atEntry 1 }
+    
+    Syntax:
+        INTEGER
+    
+    Definition:
+        The interface number for the physical address.
+    
+    Access:
+        read-write.
+    
+    Status:
+        mandatory.
+\end{lstlisting}
+
+\newpage
+\subsection{Versions}
+\label{Section:MIB-Versions}
+
+Every MIB document makes the previous version of the same document obsolete. It is forbidden to change the OID of an object between versions of a MIB document. The standard RFC1155 (see \cite{RFC:RFC1155:1990}) defines rules to remain constant regarding semantics and simplify implementing support for multiple versions of a MIB \cite{RFC:RFC1155:1990}:
+
+''New versions may:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item declare old object types obsolete (if necessary), but not delete their names;
+    \item augment the definition of an object type corresponding to a list by appending non-aggregate object types to the object types in the list; or,
+    \item define entirely new object types.
+\end{itemize}
+\end{minipage}
+
+
+New versions may not:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item change the semantics of any previously defined object without
+    changing the name of that object.''\cite{RFC:RFC1155:1990}
+\end{itemize}
+\end{minipage}
+
+
+\subsection{MIB Files}
+\label{Section:MIB-MIB_Files}
+
+Depending on the needed MIB file, the location where they are available varies. The core MIBs are defined in RFC1213 \cite{RFC:RFC1213:1991}. If MIBs from network hardware vendors are needed, they can be found on the websites of these vendors. But there are also more general sources: a search engine for MIBs can be found at \url{http://mibdepot.com} and some network monitoring tools also provide a collection of MIB files.

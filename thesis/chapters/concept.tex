@@ -1,0 +1,32 @@
+\label{Section:Concept}
+
+An important prerequisite for quick reconfiguration of network devices is an always up-to-date model of the physical network topology. This information is needed to generate a new configuration for the real-time network TSN on demand. To find the best route through the network, it has been decided to include the following properties: cable length, speeds, and the material of the connection on the physical layer. An open and common protocol to detect connected devices on a device is LLDP. LLDP offers the ability, for devices to announce their information over the complete network until a router is separating it. However, this is not supported by most LLDP daemons. A daemon is sending information about the local and the remote port, but additional information needs to be gathered from the device itself. If all daemons would send their information to the whole network, every device would have a huge list of information, that needs to be processed by the device. If every device only gets information from neighbors, it is less work to update the information when the network topology is changing. To query the information, the most common LLDP daemon \textit{lldpd} supports publishing its data to an SNMP daemon (For details see Section \ref{Section:LLDP}).
+
+The first step of generating a model of the network topology is to make a deep scan of the network to find all SNMP devices. With the result of the deep scan, it is possible to scan the found devices separately to get more detailed information. If these initialization steps are completed, the application will wait for notifications of SNMP devices on the network.
+
+The deep scan is implemented in a way that it can scan a large network in a short time. When the scan is started, it sends SNMPv1 GET requests to all IPv4 addresses in the given range. Because the scan is using normal requests, a community needs to be specified. To keep the traffic small, the scan requests the MIB field \textit{SNMPv2-MIB::sysDescr}. This field should be implemented by every device and contains only basic information. The request is sent to all given IPv4 addresses, with a delay of 10ms between requests.
+
+The scan waits for responses and logs them. This is possible because SNMP is a stateless protocol. A normal SNMP scan would send a request to one device and wait for the responses. If an answer is received or a timeout reached, the next request to the next device is being sent. The normal approach can take up to 13 minutes depending on the size of the network. Due to the implementation of the deep scan, it is only possible to scan 65535 IPv4 addresses with one scan. The bandwidth needed for this scan is less than 100MB/s. An alternative to the deep scan implementation would be to perform a depth-first or breadth-first search with the following steps:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item Get the neighbors found by LLDP on the scanning device, contact them per SNMP, and get their LLDP neighbors.
+    \item Continue with the newly discovered neighbors until the whole network is known.
+\end{itemize}
+\end{minipage}
+
+The speed of this scan would depend on the structure and size of the network. It would require contacting each device at the initialization phase one by one and parsing the information from each device after each scan. This could result in bad performance on large networks.
+
+Every device found by the deep scan is scanned again by a SNMP v2c WALK request. This tables are requested to get more detailed information:
+
+\begin{minipage}{\textwidth}
+\begin{itemize}
+    \item \textit{LLDPMIB::lldpLoc} - Contains LLDP information about the local device.
+    \item \textit{LLDPMIB::lldpRem} - Contains LLDP information about all connected devices.
+    \item \textit{IFMIB::if} - Contains information about all network interface of the local device.
+\end{itemize}
+\end{minipage}
+
+After each SNMP walk, the data is processed and inserted into a database. To pair a connection of a local and a remote port, the MAC-Addresses of these ports are used. It is required that the data of both ports have been queried. The remote MAC address can be found at \textit{LLDPMIB::lldpRemChassisId} if \textit{LLDPMIB::lldpRemChassisIdSubtype} is set to a physical address. The local MAC address can be found at \textit{IFMIB::ifPhysAddress}.
+
+The last step is to wait for incoming SNMPv1 traps, which get triggered by devices if the status of an interfaces changes. If such a trap is detected, the sender of the trap is scanned by an SNMPv2c WALK request again. The queried data is parsed and the found structure is saved again.

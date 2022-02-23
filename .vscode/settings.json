@@ -1,0 +1,33 @@
+{
+    "files.associations": {
+        "array": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "utility": "c",
+        "sds.h": "c",
+        "stdlib.h": "c",
+        "tuple": "c",
+        "cstring": "cpp",
+        "typeinfo": "cpp",
+        "string": "c",
+        "stddef.h": "c"
+    },
+    "latex-workshop.latex.autoClean.run": "onBuilt",
+    "latex-workshop.latex.clean.subfolder.enabled": true,
+    "grammarly.overrides": [
+        {
+            "files": [
+                "**/thesis/chapters/abstract.tex"
+            ],
+            "config": {
+                "audience": "knowledgeable",
+                "dialect": "american",
+                "domain": "general",
+                "emotions": [],
+                "goals": []
+            }
+        }
+    ]
+}

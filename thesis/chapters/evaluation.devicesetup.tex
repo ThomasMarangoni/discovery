@@ -1,0 +1,57 @@
+\section{How to setup a device}
+\label{Section:Evaluation-Setup}
+
+To make a Linux device work with this application, it is necessary to install an LLDP and SNMP daemon and configure them. More detailed information can be found in the man pages of snmpd, lldpd and lldpdcli: \cite{MAN:SNMPD.CONF5:2021} \cite{MAN:LLDPD8:2021} \cite{MAN:LLDPCLI8:2021}. The setup was tested on Debian 10 and may vary depending on the Linux distribution. The first step is to install \textit{lldpd} and \textit{snmpd}. After the installation has been finished, \textit{snmpd} needs to be configured. All configuration needs to be done with superuser permissions. For that, a file needs to be created at \textit{/etc/snmp/snmpd.conf} with the content shown in Listing \ref{Listing:snmpd.conf}.
+
+\begin{lstlisting}[label=Listing:snmpd.conf,captionpos=b,caption={snmpd.conf - Configuration file of the SNMP daemon}]
+    # SNMP v3 read-only community "public"
+    rouser public noauth
+    
+    # SNMP v1/v2c read-only community "public"
+    rocommunity public
+    
+    proc 0
+    
+    # SNMP device info
+    syslocation "closet"
+    syscontact "Alice"
+    sysservices 12
+    
+    # Activate agentx
+    master agentx
+\end{lstlisting}
+
+With this configuration, the SNMP daemon will listen to SNMP v1/v2c/V3 requests, when community "public" is used. Entries can only be read and not modified. For SNMPv3 no authentication is needed. The location of the system is "closet", the system administrator is called "Alice" and it should provide information about the system like interface names. It also commands the daemon to activate \textit{agentx}, which allows other daemons like \textit{lldpd} to provide its data over SNMP.
+
+The next step is to configure \textit{lldpd} via the command line interface \textit{lldpcli}. If \textit{lldpcli} is called, a special shell will open. After configuration is finished, the shell can be closed with the command \textit{exit}. The commands needed to configure the LLDP daemon are provided in Listing \ref{Listing:lldpcli}.
+
+\begin{lstlisting}[label=Listing:lldpcli,captionpos=b,caption={Commands to configure lldpd with lldpcli}]
+    configure lldp portidsubtype macaddress
+    configure system bond-slave-src-mac-type real
+    configure lldp capabilities-advertisements
+    configure lldp management-addresses-advertisements
+    configure lldp agent-type nearest-bridge
+\end{lstlisting}
+
+These commands will configure the daemon to publish the MAC address of the port as portid, use the real MAC address of the portadvertise the system capabilities, advertise the management address of the device, and only broadcast the information until the next bridge.
+
+Now both daemons need to be started, for \textit{snmpd} it only needs one command (See Listing \ref{Listing:snmpd}). 
+\begin{lstlisting}[language=bash,label=Listing:snmpd,captionpos=b,caption={Starting snmpd.}]
+    $ snmpd
+\end{lstlisting}
+
+The LLDP daemon, on the other hand, needs to be launched with the \textit{-x} as an argument, this will notify the daemon to search for an agentx and communicate with it. There are two ways to start the daemon, the first way is to start \textit{lldp} directly with the argument (see Listing \ref{Listing:lldpd-x}).
+\begin{lstlisting}[label=Listing:lldpd-x,captionpos=b,caption={starting lldpd with agentx support.}]
+    $ lldpd -x
+\end{lstlisting}
+
+Using the lldp daemon as a service requires a configuration file. This line needs to be added to \textit{/etc/default/lldpd}:
+\begin{lstlisting}[language=bash,label=Listing:lldpd-config,captionpos=b,caption={/etc/default/lldpd - Starting the daemon with agent x support.}]
+    DAEMON_ARGS="-x"
+\end{lstlisting}
+
+\newpage
+After adding the line, the daemon can be started with:
+\begin{lstlisting}[language=bash,label=Listing:lldpd,captionpos=b,caption={Starting lldpd}]
+    $ lldpd
+\end{lstlisting}
