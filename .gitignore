@@ -373,3 +373,4 @@ bb.out.*
 application/bin/*
 application/doc/*
 !application/doc/.gitkeep
+!presentation/presentation.pdf
