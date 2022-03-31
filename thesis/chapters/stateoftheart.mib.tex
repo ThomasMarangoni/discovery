@@ -107,6 +107,7 @@ The iso(1) node has a designated child node with the name org(3), that can be us
     internet   OBJECT IDENTIFIER ::= { iso org(3) dod(6) 1 }
 \end{lstlisting}
 
+\pagebreak
 \begin{lstlisting}[label=Listing:MIB-InternetSubNodes,captionpos=b,caption={Definition of subnodes, internet subnodes used as an example (from \cite{RFC:RFC1155:1990})}]
     directory     OBJECT IDENTIFIER ::= { internet 1 }
     mgmt          OBJECT IDENTIFIER ::= { internet 2 }
@@ -161,6 +162,7 @@ Objects must be defined in a MIB. A MIB can contain a collection of object defin
 
 A management protocol that is using MIBs must provide a way to access a simple non-aggregate object. The management protocol needs to define if an aggregate object can be accessed. If an object refers to multiple instances, it also needs to specify which instance of an object has been returned. An example of an object definition can be seen in Listing \ref{Listing:MIB-Object}.
 
+\pagebreak
 \begin{lstlisting}[label=Listing:MIB-Object,captionpos=b,caption={Example of an object definition (taken from \cite{RFC:RFC1155:1990})}]
     OBJECT:
     -------
