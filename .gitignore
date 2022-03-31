@@ -367,9 +367,11 @@ bb.out
 bb.out.*
 
 ### Custom ###
+*.hd
 *.ist
 *.pdf
 *.db
+!thesis/graphics/*
 application/bin/*
 application/doc/*
 !application/doc/.gitkeep
