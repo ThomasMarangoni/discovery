@@ -2,7 +2,7 @@
 \section{NETCONF - Network Configuration Protocol}
 \label{Section:NETCONF}
 
-The Network Configuration Protocol (NETCONF) was first published in December 2006 as RFC 4741\cite{RFC:RFC4741:2006}. It was created as the successor to SNMP (see Section \ref{Section:SNMP}) to modernize, simplify, and unify network management.  The protocol was updated in June 2011 with RFC 6241\cite{RFC:RFC6241:2011}. The updated version defines the protocol as follows:
+The Network Configuration Protocol (NETCONF) was first published in December 2006 as RFC 4741\cite{RFC:RFC4741:2006}. It was created as the successor to SNMP (see Section \ref{Section:SNMP}) to modernize, simplify, and unify network management.  The protocol was updated in June 2011 with RFC 6241\cite{RFC:RFC6241:2011}. The updated version defines the protocol as follows.
 
 NETCONF uses remote procedure calls (RPC) to send and receive data. The data are encoded in XML. For communication between client and server, secure and connection-oriented sessions are used. Administrative devices are called clients, while network devices are called servers. A server can support one or more sessions. Configuration changes can only be done by authorized sessions and the effects of these changes must be visible to all active sessions.
 
@@ -19,6 +19,6 @@ The protocol is separated into four layers:
 \end{itemize}
 \end{minipage}
 
-To specify data models, the YANG data model language(\cite{RFC:RFC6020:2010}) was created. It covers the operations and content layer.
+To specify data models, the YANG data model language (\cite{RFC:RFC6020:2010}) was created. It covers the operations and content layer.
 
 Transport protocols need to provide reliable and sequenced data delivery connections and automatically release requested resources on connection close. Moreover, authentication, data integrity, confidentiality, and replay protection must be provided. The protocol is responsible for establishing the connection between server and client. A NETCONF peer assumes that the authentication is handled by the protocol. Every NETCONF implementation must provide and support the SSH mapping (\cite{RFC:RFC6242:2011}).

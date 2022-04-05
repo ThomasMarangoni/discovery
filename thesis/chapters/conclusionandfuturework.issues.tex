@@ -3,7 +3,7 @@
 
 If two devices from the same model and vendor have different firmware versions, it can happen that the devices return different types of data at the same MIB entry. To avoid this problem, the devices should have the same firmware and package versions.
 
-Multiple OIDs can point to the same MIB entry. It is common that every manufacturer has its MIB table beside the standardized ones from IEEE. This makes it hard to find the needed MIB entries. A common way to find the needed entry is to perform an SNMP walk of the complete MIB Table of the device. If the values of the entries are known, the entries can be found that way. The project Net-SNMP provides an application \textit{snmptranslate} to convert between numbered and labeled OIDs. This translation process can also help to find the correct entry.
+Multiple OIDs can point to the same MIB entry. It is common that every manufacturer has its MIB table beside the standardized ones from IEEE. This makes it hard to find the needed MIB entries. A common way to find the needed entry is to perform an SNMP walk of the complete MIB table of the device. If the values of the entries are known, the entries can be found that way. The project Net-SNMP provides an application \textit{snmptranslate} to convert between numbered and labeled OIDs. This translation process can also help to find the correct entry.
 
 By default, MIB entries can have different access permissions, depending on the configuration of the device. A recommended way to fix such issues is to create an \textit{SNMP view} on each device. The view defines which community can view what MIB entries.
 
@@ -15,7 +15,7 @@ The application needs SNMPv1 for the deep scan and traps and needs SNMPv2c for s
 
 To match the connection between ports, each port needs to have an individual MAC address. But some devices only provide one MAC address for all ports.
 
-One device returned a MAC address for a remote port, that could not be found on the device. Neither in the command line interface nor via SNMP. With this behavior, it was not possible to match the local and remote ports.
+One device returned a MAC address for a remote port, that could not be found on the device, neither in the command line interface nor via SNMP. With this behavior, it was not possible to match the local and remote ports.
 
 There is no default way to get the length of a connection between two devices. The reason for this is that there is no application in normal Ethernet networks that would require the length of the line. It is possible to get the length of a cable by using the Precision Time Protocol (PTP). It is used to precisely synchronize time between multiple network devices. If a precision time measurement is available between devices, it can be used to measure how long a message took from one device to another. Because the speed of electrical signals in different materials is known, the distance the signal traveled can be calculated. But while researching implementations of it, no daemon has been found that hand this data to the SNMP daemon.
 
